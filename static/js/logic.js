@@ -1,26 +1,23 @@
-console.log("Step 1 working");
-var graymap = L.tileLayer(
-  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-  {
-    attribution:
-      "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tileSize: 512,
-    maxZoom: 18,
-    zoomOffset: -1,
-    id: "mapbox/light-v10",
-    accessToken: API_KEY
-  }
-);
-// We create the map object with options.
+
+var outdoormap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+  tileSize: 512,
+  maxZoom: 18,
+  zoomOffset: -1,
+  id: "mapbox/outdoors-v11",
+  accessToken: API_KEY
+});
+
+// Create Map Object
 var map = L.map("mapid", {
   center: [
     40.7, -94.5
   ],
   zoom: 3
 });
-// Then we add our 'graymap' tile layer to the map.
-graymap.addTo(map);
-// Here we make an AJAX call that retrieves our earthquake geoJSON data.
+// Add Map tileLayer
+outdoormap.addTo(map);
+// Retrieve earthquake geoJSON data.
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson").then(function(data) {
   // This function returns the style data for each of the earthquakes we plot on
   // the map. We pass the magnitude of the earthquake into two separate functions
@@ -54,22 +51,22 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     }
   }
   // This function determines the radius of the earthquake marker based on its magnitude.
-  // Earthquakes with a magnitude of 0 were being plotted with the wrong radius.
+  
   function getRadius(magnitude) {
     if (magnitude === 0) {
       return 1;
     }
     return magnitude * 4;
   }
-  // Here we add a GeoJSON layer to the map once the file is loaded.
+  // Add a GeoJSON layer.
   L.geoJson(data, {
-    // We turn each feature into a circleMarker on the map.
+    // Create Circle Markers.
     pointToLayer: function(feature, latlng) {
       return L.circleMarker(latlng);
     },
-    // We set the style for each circleMarker using our styleInfo function.
+    
     style: styleInfo,
-    // We create a popup for each marker to display the magnitude and location of the earthquake after the marker has been created and styled
+    // Create circle marker popups diplaying Magnitude & Depth, and Style.
     onEachFeature: function(feature, layer) {
       layer.bindPopup(
         "Magnitude: "
@@ -81,11 +78,11 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
       );
     }
   }).addTo(map);
-  // Here we create a legend control object.
+  // Create Legend.
   var legend = L.control({
     position: "bottomright"
   });
-  // Then add all the details for the legend
+  
   legend.onAdd = function() {
     var div = L.DomUtil.create("div", "info legend");
     var grades = [-10, 10, 30, 50, 70, 90];
@@ -104,6 +101,6 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     }
     return div;
   };
-  // Finally, we our legend to the map.
+  // Add Legend to Map
   legend.addTo(map);
 });
